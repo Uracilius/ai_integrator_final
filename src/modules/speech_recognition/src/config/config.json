@@ -1,0 +1,11 @@
+{
+    "verbose": false,
+    "sampling_rate": 16000,
+    "buffer_size": 2048,
+    "no_search": false,
+    "full_utt": false,
+    "hmm": "en-us/en-us",
+    "lm": "en-us/en-us.lm.bin",
+    "dic": "en-us/cmudict-en-us.dict"
+  }
+  
