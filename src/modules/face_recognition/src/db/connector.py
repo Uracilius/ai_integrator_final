@@ -19,15 +19,19 @@ def connect(config):
     collection = chroma_client.get_or_create_collection(name=config['collection_name'], embedding_function=embedding_function, data_loader=image_loader)
     return collection
 
-def save_image(face_data):
+def save_new_user(face_data, name):
     """Save an object to the specified collection."""
     collection = connect(load_config())
-    response = collection.add(
-        ids=['2'],
-        images=[face_data],
-        metadatas=[{'name': 'Ainur'}]
-    )
-    return response
+    try:
+        response = collection.update(
+            ids=['1'],
+            images=[face_data],
+            metadatas=[{'name': name}]
+        )
+        return [1, "Friend with name:", name, "has been added to the database."]
+    except Exception as e:
+        return [0, "There has been an error with connection to the database, I'm really sorry."]
+
 
 def hard_reset ():
     collection = connect(load_config())
@@ -44,4 +48,6 @@ def get_closest_face(face_data):
     response = collection.query(
         query_images=[face_data],
         n_results=1)
-    return response
+    if(response['metadatas'] != [[None]]):
+        return [1, response]
+    return [0]
