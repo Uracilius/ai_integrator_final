@@ -1,6 +1,6 @@
 import cv2
 from mtcnn import MTCNN
-
+import numpy as np
 def preprocess_image(frame):
     """
     Preprocess an image frame to detect and extract a normalized face.
@@ -30,8 +30,7 @@ def preprocess_image(frame):
         face = cv2.resize(face, (160, 160))
         
         # Normalize pixel values to the range 0-1
-        face = face.astype('float32')
-        face /= 255.0
+        face = face.astype(np.uint8)
         
         return face
     else:
