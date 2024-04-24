@@ -11,10 +11,8 @@ def add_user(name):
     if face is None:
         raise ValueError("No detectable face found in the photo. Please ensure your face is visible and well-lit.")
 
-    result, message = save_new_user(face, name)
-    if result == 0:
-        raise Exception(f"Failed to save the new user to the database: {message}")
-
+    message = save_new_user(face, name)
+    
     return "User added successfully."
 
 

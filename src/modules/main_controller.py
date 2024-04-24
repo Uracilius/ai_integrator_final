@@ -11,6 +11,7 @@ def main_add_user():
         print(f"Failed to add user {user_name}. Error: {str(e)}")
 
 def main_get_user():
+    print_and_speak("Starting user identification procedure. Smile for the camera!")
     try:
         user_info = get_user()
         return user_info['metadatas']
@@ -33,17 +34,23 @@ if __name__ == "__main__":
         main_add_user()  # Attempt to add another user if the command includes "add user"
     elif "recognize" in command or "identify" in command:
         user_name = main_get_user()[0][0]['name']
+        print(user_name)
 
     chat_controller = ChatController()
-    if "talk" in command: 
-        if "else" in command or "new" in command or "different" in command:
-            while user_name is None:
-                print_and_speak("Starting user identification procedure. Smile for the camera!")
-                user_name = main_get_user()[0][0]['name']
-                print_and_speak("User identified:", user_name)
-            print_and_speak(chat_controller.start_conversation(user_name=user_name, query=command))
-        else:
-            print_and_speak(chat_controller.continue_conversation(command))
-        while True:
-            command = main_listen()
-            print_and_speak(chat_controller.continue_conversation(command))
+    
+    if "else" in command or "new" in command or "different" in command:
+        while user_name is None:
+            user_name = main_get_user()[0][0]['name']
+            print_and_speak("User identified:", user_name)
+        print_and_speak(chat_controller.start_conversation(user_name=user_name, query=command))
+    else:
+        print_and_speak(chat_controller.continue_conversation(command))
+    continue_convo = True
+    
+    while continue_convo:
+        command = main_listen()
+        print_and_speak(chat_controller.continue_conversation(command))
+        if "end conversation" in command:
+            tags = chat_controller.extract_tags()
+            continue_convo = False
+                 

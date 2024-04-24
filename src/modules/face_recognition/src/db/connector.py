@@ -27,7 +27,7 @@ def save_new_user(face_data, name):
     try:
         collection = connect(load_config())
         response = collection.update(
-            ids=['1'],
+            ids=['4'],
             images=[face_data],
             metadatas=[{'name': name}]
         )
