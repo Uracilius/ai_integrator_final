@@ -25,5 +25,8 @@ def listen_for_commands():
             except Exception as e:
                 # General exception for any other issues that might arise
                 print("An error occurred: {0}".format(e))
+            except RecursionError:
+                print("Recursion error detected. Check for inadvertent recursive calls.")
+
 
 

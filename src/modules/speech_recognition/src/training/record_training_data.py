@@ -4,7 +4,7 @@ import sounddevice as sd
 import wavio
 from pydub import AudioSegment
 from pydub.playback import play
-import speech_recognition as sr
+import modules.speech_recognition.speech_recognition_controller as sr
 
 def record_audio(duration=2, fs=16000):
     """Record audio for a given duration and sample rate."""
