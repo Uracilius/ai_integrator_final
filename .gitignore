@@ -1,2 +1,4 @@
 src/modules/speech_recognition/src/training/training_data/*
 venv/
+testing/
+**/__pycache__/

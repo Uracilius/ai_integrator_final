@@ -50,7 +50,8 @@ if __name__ == "__main__":
     while continue_convo:
         command = main_listen()
         print_and_speak(chat_controller.continue_conversation(command))
-        if "end conversation" in command:
+        if "end" in command and "conversation" in command:
             tags = chat_controller.extract_tags()
             continue_convo = False
+    print(tags)
                  

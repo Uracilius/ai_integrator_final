@@ -14,8 +14,11 @@ def print_and_speak(*args, **kwargs):
     tts = gTTS(text=message, lang='en', slow=False)
     tts.save(output_path)
     
-    # Play the audio file
-    playsound.playsound(output_path)
-    
-    # Remove the output file after playing
-    os.remove(output_path)
+    try:
+        # Ensure the path is properly quoted to handle spaces
+        safe_output_path = f"{output_path}"  # Enclose the path in quotes
+        playsound.playsound(safe_output_path, block=True)
+    finally:
+        # Remove the output file after playing, ensuring cleanup even if playsound fails
+        if os.path.exists(output_path):
+            os.remove(output_path)
