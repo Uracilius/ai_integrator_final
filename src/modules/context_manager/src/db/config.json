@@ -1,0 +1,11 @@
+{
+    "host": "localhost",
+    "port": 8000,
+    "chroma_collection_name": "context_tags",
+    
+    "mongo_uri": "mongodb://localhost:27017/",
+    "mongo_collection_name": "chat_logs",
+
+    "postgres_uri": "dbname='BEAM' user='postgres' password='master' host='localhost' port='5432'",
+    "postgres_table_name": "context"
+}
