@@ -21,7 +21,18 @@ class ChatController:
 
     def start_conversation(self, user_name="User", query=""):
         """Starts a new conversation by initializing the conversation history and adding the initial user query."""
-        self.conversation_history = f"assistant: You are a helpful assistant.\nuser: Hello, I'm {user_name}. {query}\n"
+        debug_config="""
+            Speaking Style Configuration:
+            - Style: Authoritative and formal, akin to dystopian oversight announcements.
+            - Tone: Imperative and commanding, promoting compliance and order.
+            - Language: Utilize structured directives and specific codes, emphasizing control and urgent adherence to protocols.
+            Example Directives:
+            - Code: lock, cauterize, stabilize.
+            - Prosecution code: duty, sword, operate.
+            - Alert Code: assemble, clamp, contain.
+            These guidelines should be dynamically interpreted and applied to generate responses that maintain a consistent and thematic conversational tone.
+            """
+        self.conversation_history = f"assistant: You are a helpful assistant.{debug_config}\nuser: Hello, I'm {user_name}. {query}\n"
         return self.converse()
 
     def continue_conversation(self, query):
@@ -37,6 +48,7 @@ class ChatController:
                 messages=[{"role": "system", "content": self.conversation_history}]
             )
             latest_response = response.choices[0].message.content
+            print(latest_response, self.conversation_history)
             summarized_response = self.summarize(latest_response)
             self.conversation_history += f"assistant: {summarized_response}\n"
             return latest_response
