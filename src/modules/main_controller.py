@@ -26,6 +26,7 @@ def main_get_user():
 if __name__ == "__main__":
     user_name = None
     chat_controller = ChatController()
+    context = ContextDTO()
     user_info = None
     continue_convo = True
 
@@ -33,6 +34,7 @@ if __name__ == "__main__":
         command = listen_for_commands()
         if "end" in command and "conversation" in command:
             tags = chat_controller.extract_tags()
+            context.tags=tags.split(", ")
             continue_convo = False
         elif "add" in command and "user" in command:
             main_add_user()
@@ -48,11 +50,13 @@ if __name__ == "__main__":
         elif "remember" in command:
             while user_info is None:
                 user_info = ChromaResponse(main_get_user()).get_first_item()
+                context.user_id = user_info['id']
                 user_name = user_info['metadata']['name']
                 print_and_speak("User identified:", user_name)
-            get_convo_context(command, user_info['id'])
+            user_info, chat_controller.conversation_history = get_convo_context(command, user_info['id'])
+            print_and_speak(chat_controller.continue_conversation(command))
         else:
             print_and_speak(chat_controller.continue_conversation(command))
     
-    add_chat_to_context(chat_controller.context, ContextDTO(user_id=user_info['id'], tags=tags.split(', ')))
+    add_chat_to_context(chat_controller.conversation_history,context)
                  
