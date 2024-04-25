@@ -15,9 +15,7 @@ def add_chat_to_context(conversation_log: str, context_data: ContextDTO) -> Cont
         mongo_id = add_mongo_data(conversation_log)
         context_data.convo_id = mongo_id
 
-        # PostgreSQL Add
-        context_data.tags = ["chat", "conversation", "log"]
-        context_data.user_id = "12345"
+        # PostgreSQL Add"
         postgres_id = add_postgres_data(context_data)
         context_data.id = postgres_id
 
@@ -39,7 +37,7 @@ def add_chat_to_context(conversation_log: str, context_data: ContextDTO) -> Cont
 def get_convo_context(tags, user_id):
     initialize_mongo_db()  
     initialize_postgres_db()
-
+    print(user_id)
     chroma_response = ChromaResponse(get_chroma_closest_data(tags, user_id))
     closest_item = chroma_response.get_first_item()
 

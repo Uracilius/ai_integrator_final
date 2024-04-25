@@ -1,14 +1,14 @@
 import os
 import openai
-from .src.exceptions import ConfigurationError, APIError, ContextOverflowError
+from .src.exceptions import ConfigurationError, APIError
 from transformers import pipeline
 
 class ChatController:
     def __init__(self, model_name="gpt-3.5-turbo"):
         self.configure_api()
-        self.context = []
+        self.conversation_history = ""
         self.model_name = model_name
-        self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn")  # Set as an instance attribute
+        self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
     def configure_api(self):
         """Configure the OpenAI API key."""
@@ -20,47 +20,43 @@ class ChatController:
             raise ConfigurationError("OPENAI_API_KEY is required but not set.")
 
     def start_conversation(self, user_name="User", query=""):
-        """Starts a new conversation by setting an initial context and providing a query."""
-        self.context = [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Hello, I'm {user_name}. {query}"}
-        ]
-        return self.fetch_response(self.context)
+        """Starts a new conversation by initializing the conversation history and adding the initial user query."""
+        self.conversation_history = f"assistant: You are a helpful assistant.\nuser: Hello, I'm {user_name}. {query}\n"
+        return self.converse()
 
     def continue_conversation(self, query):
-        """Continue an existing conversation by appending a user query and fetching a response."""
-        self.append_message("user", query)
-        return self.fetch_response(self.context)
+        """Continue an existing conversation by appending the user query and fetching a response."""
+        self.conversation_history += f"user: {query}\n"
+        return self.converse()
 
-    def append_message(self, role, content):
-        """Appends a message to the context."""
-        self.context.append({"role": role, "content": content})
-        # Verify and join only string contents to avoid the TypeError
-        full_text = ' '.join(msg['content'] for msg in self.context if isinstance(msg['content'], str))
-        if len(full_text.split()) > 1000:
-            raise ContextOverflowError("The conversation context exceeds the maximum token limit.")
-        
-        print("Updated context:", self.context)  # Debug print when context is updated
-
-    def fetch_response(self, context):
-        """Fetches a response from the OpenAI API based on the conversation context."""
+    def converse(self):
+        """Handles fetching a response from the OpenAI API based on the current conversation history."""
         try:
             response = openai.chat.completions.create(
                 model=self.model_name,
-                messages=context
+                messages=[{"role": "system", "content": self.conversation_history}]
             )
-            reply = response.choices[0].message.content
-            
-            # Dynamic max_length based on the length of the reply
-            input_length = len(reply.split())
-            summarized_reply = self.summarizer(reply, max_length=100, min_length=5, do_sample=False)
-            summarized_text = summarized_reply[0]['summary_text']  # Extracting the summary text
-
-            self.append_message("assistant", summarized_text)
-            return summarized_text
+            latest_response = response.choices[0].message.content
+            summarized_response = self.summarize(latest_response)
+            self.conversation_history += f"assistant: {summarized_response}\n"
+            return latest_response
         except Exception as e:
-            raise APIError(f"Error fetching response: {str(e)}")
+            raise APIError(f"Error during conversation: {str(e)}")
+        
+    def summarize(self, response):
+        """Summarizes the response if the conversation history exceeds 1000 tokens."""
+        # Calculate the number of tokens in the current conversation history
+        if len(self.conversation_history.split()) > 1000:
+            try:
+                summarized_response = self.summarizer(response, max_length=10000, min_length=30, do_sample=False)
+                return summarized_response[0]['summary_text'] 
+            except Exception as e:
+                print(f"Error during summarization: {str(e)}")
+                return response
+        return response
         
     def extract_tags(self):
-        self.append_message("user", "Extract tags for this conversation to make it unique. No need for theatrics, just start with them and end with them. Comma separated list")
-        return self.fetch_response(self.context)
+        """Extracts the tags from the conversation history."""
+        return self.continue_conversation("Extract tags for this conversation to make it unique. No need for theatrics, just start with them and end with them. Comma separated list of this form: tag1, tag2, tag3, tag4. Nothing more")
+        
+    

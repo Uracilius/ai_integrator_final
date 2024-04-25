@@ -1,7 +1,7 @@
 import chromadb
 import json
 import os
-
+from .exceptions import DataNotFoundException
 def load_config(config_path='config.json'):
     """Load configuration from a JSON file."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,18 +18,25 @@ def connect(config):
     except Exception as e:
         raise Exception(f"Failed to connect to Chroma's context tags database: {str(e)}")
 
-'''input : tags in the form of {ids: 1; tags: []}'''
 def get_chroma_closest_data(tags, userId):
-    """Save an object to the specified collection."""
+    """Query the closest conversation data for given tags and user ID."""
     try:
         collection = connect(load_config())
         response = collection.query(
             query_texts=tags,
             n_results=1,
-            where={"name": userId})
+            where={"name": userId}
+        )
+        # Check if the response is empty or does not meet expected conditions
+        if not response or not len(response.get('documents'))==1:  # Adjust depending on actual response structure
+            raise DataNotFoundException("Failed to find any conversations for user ID: {}".format(userId))
         return response
+    except DataNotFoundException as e:
+        # You can handle known cases directly in the calling function
+        raise e
     except Exception as e:
-        raise Exception("Failed to find the closest conversation: " + str(e))
+        # Handle other unexpected exceptions
+        raise Exception("Failed to query data due to an error: " + str(e))
     
 def add_chroma_data(id, tags, name):
     """Save an object to the specified collection."""

@@ -1,9 +1,9 @@
-from .src.input import capture_1_photo_timeout_5, capture_n_photo_timeout_t
+from .src.input import capture_1_photo_no_timeout
 from .src.input_processor import preprocess_image
 from .src.db.connector import save_new_user, get_closest_face
 
 def add_user(name):
-    photo = capture_1_photo_timeout_5()
+    photo = capture_1_photo_no_timeout()
     if photo is None:
         raise Exception("Failed to capture a photo. Please ensure the camera is connected and functional.")
 
@@ -17,7 +17,7 @@ def add_user(name):
 
 
 def get_user():
-    photo = capture_1_photo_timeout_5()
+    photo = capture_1_photo_no_timeout()
     if photo is None:
         raise Exception("Failed to capture a photo. Please ensure the camera is connected and functional.")
     

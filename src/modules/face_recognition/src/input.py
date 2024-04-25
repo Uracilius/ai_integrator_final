@@ -14,6 +14,19 @@ def capture_1_photo_timeout_5():
         return None
     except CaptureError:
         return None
+    
+def capture_1_photo_no_timeout():
+    """ Capture 1 photo after a 5-second timeout. """
+    try:
+        cap = open_camera()
+        time.sleep(5)
+        photos = capture_photos(cap, 1, 0)
+        cap.release()
+        return photos[0] if photos else None
+    except CameraError:
+        return None
+    except CaptureError:
+        return None
 
 def capture_3_photo_timeout_5():
     """ Capture 3 photos, 1 second apart, after a 5-second timeout. """
