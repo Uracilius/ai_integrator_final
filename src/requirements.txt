@@ -4,7 +4,7 @@ mtcnn==0.1.1
 numpy==1.26.4
 openai==1.23.3
 opencv_python==4.9.0.80
-playsound==1.3.0
+playsound=1.2.2
 pocketsphinx==5.0.3
 pydub==0.25.1
 sounddevice==0.4.6
@@ -16,3 +16,4 @@ pillow
 open-clip-torch
 langchain
 tf-keras
+transformers
