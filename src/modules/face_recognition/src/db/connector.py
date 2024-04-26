@@ -4,6 +4,8 @@ import os
 from chromadb.utils.data_loaders import ImageLoader
 from chromadb.utils.embedding_functions import OpenCLIPEmbeddingFunction
 
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
 def load_config(config_path='config.json'):
     """Load configuration from a JSON file."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
