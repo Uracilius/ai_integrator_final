@@ -18,3 +18,4 @@ langchain
 tf-keras
 transformers
 pymongo
+phonemizer
