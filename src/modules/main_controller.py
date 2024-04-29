@@ -17,7 +17,7 @@ def main_add_user():
     try:
         user_name = input("Give me the new user's name: ")
         add_user_result = add_user(user_name)
-        if add_user_result:  # Assuming add_user returns a truthy value on success
+        if add_user_result:  
             print(f"User {user_name} added successfully.")
         else:
             print(f"Failed to add user {user_name}.")
@@ -25,7 +25,7 @@ def main_add_user():
         print(f"Failed to add user. Error: {str(e)}")
 
 def main_identify_user():
-    global user_info  # Declare global to modify the global variable
+    global user_info  
     try:
         user_info = ChromaResponse(get_user()).get_first_item()
         if user_info is None:
@@ -35,7 +35,7 @@ def main_identify_user():
 
 def main_recognize_command(command):
     intent, confidence = command_recognizer.predict_intent(command)
-    global user_info, continue_convo, tags  # Declare global to modify the global variables
+    global user_info, continue_convo, tags
     
     if confidence < 0.8 or intent == 'None':
         tts_engine.print_and_speak("Command not recognized. Please try again.")
@@ -64,8 +64,8 @@ if __name__ == "__main__":
     tts_engine.print_and_speak("Online and ready. Give your command.")
 
     while continue_convo:
-        command = input("Give your command: ")
-        # command = listen_for_commands()
+        # command = input("Give your command: ")
+        command = listen_for_commands()
         if "command" in command.split(" ")[0]:
             main_recognize_command(command)
         else:

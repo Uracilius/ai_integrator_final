@@ -1,32 +1,57 @@
-import speech_recognition as sr
+import vosk
+import pyaudio
+import wave
+import os 
 
 def listen_for_commands():
-    recognizer = sr.Recognizer()
+    base_dir = os.path.dirname(os.path.abspath(__file__)) + '/vosk-model-en-us-0.42-gigaspeech'
+       
+    model = vosk.Model(base_dir)
+    recognizer = vosk.KaldiRecognizer(model, 16000)
 
-    with sr.Microphone() as source:
-        print("Listening indefinitely. Say 'over' to stop.")
-        recognizer.adjust_for_ambient_noise(source)
+    CHUNK = 1024
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 16000
+    RECORD_SECONDS = 10  # Adjust recording duration as needed
 
-        while True:
-            try:
-                audio = recognizer.listen(source)
-                phrase = recognizer.recognize_google(audio)
-                print('You said:', phrase)
+    p = pyaudio.PyAudio()
 
-                if 'over' in phrase.lower():
-                    return phrase
+    print("Listening indefinitely. Say 'over' to stop.")
 
-            except sr.UnknownValueError:
-                # This exception is raised if the speech is unintelligible
-                print("Could not understand audio")
-            except sr.RequestError as e:
-                # This exception is raised if there’s a problem with the Google API or internet connection
-                print("Could not request results; {0}".format(e))
-            except Exception as e:
-                # General exception for any other issues that might arise
-                print("An error occurred: {0}".format(e))
-            except RecursionError:
-                print("Recursion error detected. Check for inadvertent recursive calls.")
+    stream = p.open(format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=CHUNK)
 
+    frames = []
 
+    while True:
+        try:
+            data = stream.read(CHUNK)
+            frames.append(data)
+            if len(frames) * CHUNK / RATE > RECORD_SECONDS:
+                break
+        except KeyboardInterrupt:
+            print("Listening stopped by user")
+            break
+        except Exception as e:
+            print("An error occurred:", e)
+            break
 
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+
+    audio_data = b''.join(frames)
+
+    recognizer.AcceptWaveform(audio_data)
+    result = recognizer.FinalResult()
+
+    if result:
+        return result[0]
+
+# Example usage:
+if __name__ == "__main__":
+    listen_for_commands()
