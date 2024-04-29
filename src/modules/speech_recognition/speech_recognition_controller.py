@@ -2,56 +2,59 @@ import vosk
 import pyaudio
 import wave
 import os 
+import json
 
-def listen_for_commands():
-    base_dir = os.path.dirname(os.path.abspath(__file__)) + '/vosk-model-en-us-0.42-gigaspeech'
-       
-    model = vosk.Model(base_dir)
-    recognizer = vosk.KaldiRecognizer(model, 16000)
+class CommandListener:
+    def __init__(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__)) + '/vosk-model-en-us-0.42-gigaspeech'
+        self.model = vosk.Model(base_dir)
+        self.recognizer = vosk.KaldiRecognizer(self.model, 16000)
 
-    CHUNK = 1024
-    FORMAT = pyaudio.paInt16
-    CHANNELS = 1
-    RATE = 16000
-    RECORD_SECONDS = 10  # Adjust recording duration as needed
+        self.CHUNK = 1024
+        self.FORMAT = pyaudio.paInt16
+        self.CHANNELS = 1
+        self.RATE = 16000
+        self.RECORD_SECONDS = 10
 
-    p = pyaudio.PyAudio()
+    def listen_for_commands(self):
+        p = pyaudio.PyAudio()
 
-    print("Listening indefinitely. Say 'over' to stop.")
+        print("Listening indefinitely. Say 'over' to stop.")
 
-    stream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=CHUNK)
+        stream = p.open(format=self.FORMAT,
+                        channels=self.CHANNELS,
+                        rate=self.RATE,
+                        input=True,
+                        frames_per_buffer=self.CHUNK)
 
-    frames = []
+        frames = []
 
-    while True:
-        try:
-            data = stream.read(CHUNK)
-            frames.append(data)
-            if len(frames) * CHUNK / RATE > RECORD_SECONDS:
+        while True:
+            try:
+                data = stream.read(self.CHUNK)
+                frames.append(data)
+                if len(frames) * self.CHUNK / self.RATE > self.RECORD_SECONDS:
+                    break
+            except KeyboardInterrupt:
+                print("Listening stopped by user")
                 break
-        except KeyboardInterrupt:
-            print("Listening stopped by user")
-            break
-        except Exception as e:
-            print("An error occurred:", e)
-            break
+            except Exception as e:
+                print("An error occurred:", e)
+                break
 
-    stream.stop_stream()
-    stream.close()
-    p.terminate()
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
 
-    audio_data = b''.join(frames)
+        audio_data = b''.join(frames)
 
-    recognizer.AcceptWaveform(audio_data)
-    result = recognizer.FinalResult()
+        self.recognizer.AcceptWaveform(audio_data)
+        result = json.loads(self.recognizer.FinalResult())
 
-    if result:
-        return result[0]
+        if result:
+            return result["text"]
 
 # Example usage:
 if __name__ == "__main__":
-    listen_for_commands()
+    listener = CommandListener()
+    print(listener.listen_for_commands())

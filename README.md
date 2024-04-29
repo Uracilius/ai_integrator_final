@@ -13,7 +13,7 @@ $ pip install -r requirements.txt
 ~~~
 
 ### Setup ChromaDB Database:
-The project utilizes ChromaDB as its database. You need to set up a ChromaDB database and configure its connection details in the config.json file located at 
+The project utilizes ChromaDB, PostgreSQL and MongoDB as its' storage. You need to set them up and and configure their connection details in the config.json file located at 
 
 ~~~bash
 src/modules/face_recognition/src/db/config.json
@@ -26,3 +26,11 @@ Once you have installed the dependencies and configured the database, you can ru
 ~~~bash
 $ python -m src.modules.main_controller
 ~~~
+
+# Feature creep list:
+1) Custom face embedding model
+2) Normalization of face input for more accurate recognition results\
+3) Cleaned up error handling to be only on lowest levels
+4) Vital/Priority conversations(for future fine-tuning of OPENAI model)
+5) Independent summary processed for context(go over mongo database and see if any context is over 1k tokens. If yes - summarize.)
+6) Add fine-tuning logic for the future( get all "vital" or important tags with high priortity and format them for fine-tuning CHATGPT)
