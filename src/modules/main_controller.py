@@ -5,12 +5,13 @@ from src.modules.context_manager.context_manager_controller import add_chat_to_c
 from src.modules.shared.DTO.chroma_response import ChromaResponse
 from src.modules.shared.DTO.context_data import ContextDTO
 from src.modules.text_to_speech.glados import TTS_Engine
-
+from src.modules.command_recognizer.command_recognizer import CommandRecognizer
 user_info = None
 continue_convo = True
 tags = None
 chat_controller = ChatController()
 tts_engine = TTS_Engine()
+command_recognizer = CommandRecognizer()
 
 def main_add_user():
     try:
@@ -33,22 +34,25 @@ def main_identify_user():
         print(f"Failed to find user. Error: {str(e)}")
 
 def main_recognize_command(command):
+    intent, confidence = command_recognizer.predict_intent(command)
     global user_info, continue_convo, tags  # Declare global to modify the global variables
+    
+    if confidence < 0.8 or intent == 'None':
+        tts_engine.print_and_speak("Command not recognized. Please try again.")
+        return
     if user_info is None:
         main_identify_user()
-    if "end" in command and "conversation" in command:
+    if intent == 'End':
         extract_tags_end_conversation()
-    elif "add" in command and "user" in command:
+    elif intent == 'Register_User':
         main_add_user()
-    elif "else" in command or "new" in command or "different" in command:
+    elif intent == 'New':
         new_chat_response = chat_controller.start_conversation(user_name=user_info['metadata']['name'], query=command)
         tts_engine.print_and_speak(new_chat_response)
-    elif "remember" in command:
+    elif intent == "Retrieve_Context" in command:
         user_info, chat_controller.conversation_history = get_convo_context(command, user_info['id'])
         tts_engine.print_and_speak(chat_controller.continue_conversation(command))
-    else:
-        tts_engine.print_and_speak(chat_controller.continue_conversation(command))
-
+    
 def extract_tags_end_conversation():
     global continue_convo  # Declare global to modify the global variable
     global tags
@@ -62,7 +66,10 @@ if __name__ == "__main__":
     while continue_convo:
         command = input("Give your command: ")
         # command = listen_for_commands()
-        main_recognize_command(command)
+        if "command" in command.split(" ")[0]:
+            main_recognize_command(command)
+        else:
+            tts_engine.print_and_speak(chat_controller.continue_conversation(command))
     if tags:
         add_chat_to_context(chat_controller.conversation_history, ContextDTO(user_id=user_info['id'], tags=tags.split(', ')))
 
