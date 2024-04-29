@@ -56,6 +56,7 @@ def extract_tags_end_conversation():
     continue_convo = False
 
 if __name__ == "__main__":
+
     tts_engine.print_and_speak("Online and ready. Give your command.")
 
     while continue_convo:
@@ -64,3 +65,4 @@ if __name__ == "__main__":
         main_recognize_command(command)
     if tags:
         add_chat_to_context(chat_controller.conversation_history, ContextDTO(user_id=user_info['id'], tags=tags.split(', ')))
+
