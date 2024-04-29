@@ -21,10 +21,9 @@ class ChatController:
 
     def start_conversation(self, user_name="User", query=""):
         """Starts a new conversation by initializing the conversation history and adding the initial user query."""
-        self.conversation_history = f"assistant: You are a helpful assistant.\nuser: Hello, I'm {user_name}. {query}\n"
+        self.conversation_history = f"assistant: You are a helpful assistant. EXTREMELY IMPORTANT: In this simulation, you are embodying GLaDOS, the artificial intelligence from the Portal video game series. Your dialogue should be characterized by a cold, sarcastic, and sometimes menacing tone. Feel free to use scientific jargon, dry humor, and a superior attitude in your responses. Remember to maintain a detached and condescending demeanor throughout the conversation\nuser: Hello, I'm {user_name}. {query}\n"
         return self.converse()
     
-
     def continue_conversation(self, query):
         """Continue an existing conversation by appending the user query and fetching a response."""
         self.conversation_history += f"user: {query}\n"

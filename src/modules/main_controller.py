@@ -6,7 +6,6 @@ from src.modules.shared.DTO.chroma_response import ChromaResponse
 from src.modules.shared.DTO.context_data import ContextDTO
 from src.modules.text_to_speech.glados import TTS_Engine
 
-
 user_info = None
 continue_convo = True
 tags = None
@@ -42,7 +41,6 @@ def main_recognize_command(command):
     elif "add" in command and "user" in command:
         main_add_user()
     elif "else" in command or "new" in command or "different" in command:
-        print(user_info)
         new_chat_response = chat_controller.start_conversation(user_name=user_info['metadata']['name'], query=command)
         tts_engine.print_and_speak(new_chat_response)
     elif "remember" in command:
@@ -53,6 +51,7 @@ def main_recognize_command(command):
 
 def extract_tags_end_conversation():
     global continue_convo  # Declare global to modify the global variable
+    global tags
     tags = chat_controller.extract_tags()
     continue_convo = False
 
@@ -60,7 +59,8 @@ if __name__ == "__main__":
     tts_engine.print_and_speak("Online and ready. Give your command.")
 
     while continue_convo:
-        command = listen_for_commands()
+        command = input("Give your command: ")
+        # command = listen_for_commands()
         main_recognize_command(command)
-        
-    add_chat_to_context(chat_controller.conversation_history, ContextDTO(user_id=user_info['id'], tags=tags.split(', ')))
+    if tags:
+        add_chat_to_context(chat_controller.conversation_history, ContextDTO(user_id=user_info['id'], tags=tags.split(', ')))

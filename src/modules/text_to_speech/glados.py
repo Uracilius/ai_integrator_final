@@ -38,13 +38,13 @@ class TTS_Engine:
             # Generate generic TTS-output
             old_time = time.time()
             tts_output = self.glados.generate_jit(x)
-            #print("Forward Tacotron took " + str((time.time() - old_time) * 1000) + "ms")
+            print("Forward Tacotron took " + str((time.time() - old_time) * 1000) + "ms")
 
             # Use HiFiGAN as vocoder to make output sound like GLaDOS
             old_time = time.time()
             mel = tts_output['mel_post'].to(self.device)
             audio = self.vocoder(mel)
-            #print("HiFiGAN took " + str((time.time() - old_time) * 1000) + "ms")
+            print("HiFiGAN took " + str((time.time() - old_time) * 1000) + "ms")
             
             # Normalize audio to fit in wav-file
             audio = audio.squeeze()
